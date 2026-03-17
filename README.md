@@ -1,3 +1,14 @@
+---
+title: Bioinformatics Scout
+emoji: 📚
+colorFrom: pink
+colorTo: red
+sdk: gradio
+sdk_version: 6.9.0
+app_file: src/app.py
+pinned: false
+---
+
 # Bioinformatics Literature Scout
 
 A multi-agent pipeline that automates literature discovery for bioinformatics and ML research. Given a research query, the system autonomously plans a search strategy, runs parallel literature searches across PubMed and ArXiv, and synthesizes findings into a structured research brief — replicating in minutes what would take a researcher hours of manual searching.
