@@ -128,6 +128,12 @@ The pipeline will:
    - Research gaps
    - Suggested follow-up queries
 
+### Example Output
+
+![Example Output — Search & Synthesis](assets/sc1.png)
+
+![Example Output — Research Brief](assets/sc2.png)
+
 ---
 
 ## Deployment — Hugging Face Spaces

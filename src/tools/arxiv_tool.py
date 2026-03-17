@@ -12,14 +12,18 @@ def arxiv_search(query: str, max_results: int = 3) -> str:
         query: The search query for ArXiv.
         max_results: Maximum number of papers to return (default 3).
     """
-    client = arxiv.Client()
+    client = arxiv.Client(page_size=max_results, delay_seconds=0.0, num_retries=2)
     search = arxiv.Search(
         query=query,
         max_results=max_results,
         sort_by=arxiv.SortCriterion.Relevance,
     )
 
-    results = list(client.results(search))
+    try:
+        results = list(client.results(search))
+    except Exception as e:
+        return f"ArXiv search failed for '{query}': {e}"
+
     if not results:
         return f"No ArXiv results found for: {query}"
 

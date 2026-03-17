@@ -18,8 +18,14 @@ async def _run_single_search(search_term: str, reasoning: str) -> SearchResult |
             f"Search for papers on: {search_term}\n"
             f"Context: {reasoning}"
         )
-        result = await Runner.run(search_agent, input=prompt, max_turns=25)
+        result = await asyncio.wait_for(
+            Runner.run(search_agent, input=prompt, max_turns=25),
+            timeout=120,  # 2 min max per search
+        )
         return result.final_output
+    except asyncio.TimeoutError:
+        print(f"[TIMEOUT] Search timed out for '{search_term}'")
+        return None
     except Exception as e:
         print(f"[ERROR] Search failed for '{search_term}': {e}")
         traceback.print_exc()
