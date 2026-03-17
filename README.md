@@ -6,7 +6,7 @@ colorTo: red
 sdk: gradio
 sdk_version: 6.9.0
 app_file: src/app.py
-pinned: false
+pinned: true
 ---
 
 # Bioinformatics Literature Scout
@@ -23,65 +23,7 @@ Built with the **OpenAI Agents SDK** and deployed on **Hugging Face Spaces** via
 
 ## How It Works
 
-```
-                          User Query
-                    "transformer models for
-                     single cell genomics"
-                              |
-                              v
-                 +------------------------+
-                 |     PLANNER AGENT      |   GPT-4o-mini
-                 |                        |   Structured output (Pydantic)
-                 |  Breaks the query into |
-                 |  5 targeted sub-topic  |
-                 |  search terms          |
-                 +------------------------+
-                              |
-                              |  SearchPlan (5 items)
-                              |
-            +---------+-------+-------+---------+
-            |         |       |       |         |
-            v         v       v       v         v
-        +-------+ +-------+ +---+ +-------+ +-------+
-        |Search | |Search | |S3 | |Search | |Search |
-        |Agent 1| |Agent 2| |   | |Agent 4| |Agent 5|   5x GPT-4o-mini
-        +---+---+ +---+---+ +-+-+ +---+---+ +---+---+   (all run in parallel)
-            |         |       |       |         |
-            |  Each agent calls two tools:      |
-            |  +---------------------------+    |
-            |  | pubmed_search() -> top 3  |    |
-            |  | arxiv_search()  -> top 3  |    |
-            |  +---------------------------+    |
-            |         |       |       |         |
-            v         v       v       v         v
-        [papers]  [papers] [papers] [papers] [papers]
-            |         |       |       |         |
-            +----+----+-------+-------+----+----+
-                 |                         |
-                 v                         v
-              ~30 papers with metadata
-              (title, abstract, DOI, relevance score)
-                              |
-                              v
-                 +------------------------+
-                 |    SYNTHESIS AGENT     |   GPT-4o
-                 |                        |   (stronger model for
-                 |  Reads all papers,     |    deeper reasoning)
-                 |  writes a structured   |
-                 |  research brief        |
-                 +------------------------+
-                              |
-                              v
-                 +------------------------+
-                 |    RESEARCH BRIEF      |
-                 |                        |
-                 |  - Executive Summary   |
-                 |  - Key Papers by Topic |
-                 |  - Emerging Themes     |
-                 |  - Research Gaps       |
-                 |  - Follow-up Queries   |
-                 +------------------------+
-```
+![Pipeline Architecture](assets/architecture.png)
 
 ---
 
@@ -140,28 +82,6 @@ The agents use two tools — Python functions that call real scientific APIs:
 
 ---
 
-## Project Structure
-
-```
-bioinformatics_scout/
-├── src/
-│   ├── scout_agents/
-│   │   ├── planner_agent.py      # SearchPlan output type
-│   │   ├── search_agent.py       # PubMed + ArXiv tools
-│   │   └── synthesis_agent.py    # Research brief output
-│   ├── tools/
-│   │   ├── pubmed_tool.py        # @function_tool wrapping Entrez
-│   │   └── arxiv_tool.py         # @function_tool wrapping arxiv
-│   ├── scout_manager.py          # Async orchestrator (parallel search)
-│   └── app.py                    # Gradio UI
-├── output/                       # Generated research briefs (gitignored)
-├── pyproject.toml
-├── .env.example
-└── README.md
-```
-
----
-
 ## Key Patterns
 
 - **Parallel async agents** — `asyncio.create_task()` + `as_completed()` for 5 concurrent searches
@@ -215,12 +135,6 @@ The pipeline will:
 Deployed on Hugging Face Spaces (free CPU tier). No GPU needed — all compute happens on OpenAI's API.
 
 API keys are stored as **Hugging Face Secrets** (Settings → Variables and Secrets), never in the code.
-
-```bash
-# Push to HF Spaces
-git remote add hf https://huggingface.co/spaces/Mituvinci/bioinformatics-scout
-git push hf main
-```
 
 ---
 
